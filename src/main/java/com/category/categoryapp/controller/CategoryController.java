@@ -2,18 +2,28 @@ package com.category.categoryapp.controller;
 
 import com.category.categoryapp.model.Category;
 import com.category.categoryapp.service.CategoryServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import java.util.List;
 
 @RestController
 public class CategoryController {
 
     private CategoryServiceImpl categoryService;
+    private ObjectMapper objectMapper;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
-    public CategoryController(CategoryServiceImpl categoryService) {
+    @Autowired
+    public CategoryController(CategoryServiceImpl categoryService, ObjectMapper objectMapper, KafkaTemplate<String, String> kafkaTemplate) {
         this.categoryService = categoryService;
+        this.objectMapper = objectMapper;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @RequestMapping(
@@ -28,7 +38,7 @@ public class CategoryController {
     }
 
     @RequestMapping(
-            value = "/category/{categoryId}",
+            value = "/database/category/{categoryId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -37,12 +47,12 @@ public class CategoryController {
     }
 
     @RequestMapping(
-            value = "/category",
+            value = "/database/category/all",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public List<Category> findAll() {
-        return categoryService.getCategories();
+        return categoryService.findAll();
     }
 
     @RequestMapping(
@@ -62,5 +72,27 @@ public class CategoryController {
     )
     public Category delete(@PathVariable int categoryId) {
         return categoryService.delete(categoryId);
+    }
+
+    @RequestMapping(
+            value = "/category/publish",
+            method = RequestMethod.GET,
+            produces = MediaType.TEXT_PLAIN_VALUE
+    )
+    public String publish(){
+        Category category = new Category(
+                1,
+                "Phone",
+                "Samsung bro"
+        );
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(category);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        kafkaTemplate.send("categories", json);
+        return "Oke";
     }
 }

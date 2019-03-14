@@ -3,13 +3,18 @@ package com.category.categoryapp.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "category")
 public class Category {
 
-    private int categoryId;
+    @Id
+    private Integer categoryId;
+
     private String categoryName;
     private String categoryDescription;
 

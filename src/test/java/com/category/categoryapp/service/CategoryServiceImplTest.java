@@ -1,7 +1,6 @@
-package com.category.categoryapp;
+package com.category.categoryapp.service;
 
 import com.category.categoryapp.model.Category;
-import com.category.categoryapp.service.CategoryServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.stereotype.Component;
@@ -47,7 +46,7 @@ public class CategoryServiceImplTest {
 
     @Test
     public void findAll() {
-        assertEquals("List harus bersize 2", categoryService.getCategories().size(), 2);
+        assertEquals("List harus bersize 2", categoryService.findAll().size(), 2);
     }
 
     @Test
@@ -63,7 +62,7 @@ public class CategoryServiceImplTest {
     @Test
     public void delete() {
         categoryService.delete(2);
-        assertFalse("Category 2 harus terhapus", categoryService.getCategories().contains(category2));
+        assertFalse("Category 2 harus terhapus", categoryService.findAll().contains(category2));
 
     }
 }
